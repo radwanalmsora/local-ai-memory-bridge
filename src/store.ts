@@ -7,7 +7,6 @@ import { open, seal, subkey } from "./crypto.js";
 import { redact } from "./redact.js";
 import { DIM, embedPassage, embedQuery } from "./embeddings.js";
 import { cluster, mergeTexts } from "./compress.js";
-
 const blob = (v: Float32Array) => Buffer.from(v.buffer, v.byteOffset, v.byteLength);
 const toF32 = (b: Buffer) => new Float32Array(Uint8Array.from(b).buffer);
 
@@ -21,7 +20,10 @@ export class MemoryStore {
     const master = await getMasterKey();
     const db: any = new Database(join(HOME, "memory.db"));
     db.pragma("cipher='sqlcipher'");                                   // whole-DB encryption
+    try {
     db.pragma(`key="x'${subkey(master, "db").toString("hex")}'"`);
+    db.prepare("SELECT count(*) FROM sqlite_master").get();
+    } catch (e: any) { if (e.code === "SQLITE_NOTADB") throw new Error("Cannot decrypt memory.db: the master key does not match. Restore your key (MEMORY_BRIDGE_KEY) or delete ~/.memory-bridge/memory.db to start fresh."); throw e; }
     sqliteVec.load(db);
     db.exec(`
       CREATE TABLE IF NOT EXISTS memories(
