@@ -1,16 +1,17 @@
 {
   "name": "local-ai-memory-bridge",
-  "version": "0.1.0",
-  "description": "",
+  "version": "0.1.2",
+  "description": "Encrypted, offline long-term memory for AI agents via MCP",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
-    "dev": "tsx src/cli.ts"
+    "dev": "tsx src/cli.ts",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module",
   "bin": {
     "memory-bridge": "dist/cli.js"
@@ -29,5 +30,15 @@
     "@types/node": "^26.6.6",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2"
-  }
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/radwanalmsora/local-ai-memory-bridge.git"
+  },
+  "files": [
+    "dist"
+  ]
 }
