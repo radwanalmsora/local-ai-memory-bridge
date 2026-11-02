@@ -14,6 +14,7 @@ export async function getMasterKey(): Promise<Buffer> {
     let hex: string | null = null;
     try { hex = entry.getPassword(); } catch {}
     if (!hex) { hex = randomBytes(32).toString("hex"); entry.setPassword(hex); }
+    console.error("[memory-bridge] key source: OS keychain");
     return Buffer.from(hex, "hex");
   } catch {
     // stderr only: stdout is reserved for the MCP protocol
