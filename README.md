@@ -1,3 +1,6 @@
+English | [العربية](README_ar.md) | [简体中文](README_zh.md) | [Español](README_es.md)
+
+
 # 🧠 Local AI Memory Bridge
 
 **Persistent, encrypted, fully offline long-term memory for AI agents** (Claude Code, Cursor, and any MCP client).
