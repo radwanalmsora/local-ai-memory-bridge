@@ -3,7 +3,7 @@
 **Persistent, encrypted, fully offline long-term memory for AI agents** (Claude Code, Cursor, and any MCP client).
 Your memories never leave your machine.
 
-> ⚠️ **Status: alpha (v0.1).** Save, search, redaction and the MCP server are tested. `compact` is implemented but has had limited testing.
+> ⚠️ **Status: alpha (v0.1).** Save, search, redaction and the MCP server are tested from the CLI and a test MCP client. Not yet tested with every agent. `compact` has had limited testing. Do not rely on it for highly sensitive data yet.
 
 ## Why
 
@@ -27,21 +27,21 @@ flowchart LR
 
 ## Quick Start
 
+Requires Node.js 20 or newer.
+
 ```bash
-git clone https://github.com/radwanalmsora/local-ai-memory-bridge
-cd local-ai-memory-bridge
-npm install
-npx tsx src/cli.ts add "I prefer TypeScript for new projects"
-npx tsx src/cli.ts search "what language do I prefer?"
-npx tsx src/cli.ts setup
+npx -y local-ai-memory-bridge add "I prefer TypeScript for new projects"
+npx -y local-ai-memory-bridge search "what language do I prefer?"
+npx -y local-ai-memory-bridge setup
 ```
 
-The first run downloads the embedding model (about 100-150 MB) to `~/.memory-bridge/models`.
+The first `add` or `search` downloads the embedding model (about 100-150 MB) to `~/.memory-bridge/models`. Run one of them once before connecting an agent, so the agent does not time out on the first call.
 
 ### Connect to Claude Code
 
 ```bash
-claude mcp add memory-bridge -- npx -y tsx /path/to/local-ai-memory-bridge/src/cli.ts serve
+claude mcp add memory-bridge -- npx -y local-ai-memory-bridge serve
+claude mcp list
 ```
 
 ### Connect to Cursor (`mcp.json`)
@@ -51,7 +51,7 @@ claude mcp add memory-bridge -- npx -y tsx /path/to/local-ai-memory-bridge/src/c
   "mcpServers": {
     "memory-bridge": {
       "command": "npx",
-      "args": ["-y", "tsx", "/path/to/local-ai-memory-bridge/src/cli.ts", "serve"]
+      "args": ["-y", "local-ai-memory-bridge", "serve"]
     }
   }
 }
@@ -86,15 +86,25 @@ claude mcp add memory-bridge -- npx -y tsx /path/to/local-ai-memory-bridge/src/c
 | `MEMORY_BRIDGE_MODEL` | `Xenova/multilingual-e5-small` | Embedding model |
 | `MEMORY_BRIDGE_MARGIN` | `0.04` | Relevance cut-off relative to the best hit |
 
+## Your encryption key (read this)
+
+Your memories can only be opened with the master key.
+
+- If the OS keychain entry is deleted, or you move to a new machine without the key, **the database cannot be opened and the data is unrecoverable**.
+- You will see: `Cannot decrypt memory.db: the master key does not match...`. Either restore your key via `MEMORY_BRIDGE_KEY`, or delete `~/.memory-bridge/memory.db` to start fresh.
+- To control the key yourself, generate one (`openssl rand -hex 32`), store it in a password manager, and set it as `MEMORY_BRIDGE_KEY`.
+- In ephemeral environments (Codespaces, containers), the key and database may be lost when the environment is deleted.
+
 ## Security model and limits
 
 - Redaction is best-effort (patterns plus entropy). It will miss some secrets, so don't rely on it as your only control.
-- If the master key is lost, the data cannot be recovered.
 - This protects data at rest on your machine, not against malware running as your user.
+- This project has not had an independent security review.
 
 ## Roadmap
 
-- [ ] One-command install via npm (`npx`)
+- [x] One-command install via npm (`npx`)
+- [ ] Key export / backup command
 - [ ] Optional NER-based PII detection
 - [ ] Optional local-LLM summarization (Ollama)
 - [ ] Tests and CI
